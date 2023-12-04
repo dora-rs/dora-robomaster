@@ -40,7 +40,12 @@ Before you get started, you'll need the following:
 ### Getting Started
 
 command to start the demo:
-`dora start graphs/dataflow.yml --attach`
+
+```bash
+alias dora='dora-cli'
+dora up
+dora start graphs/dataflow.yml --attach
+```
 
 start the led test:
 `dora start graphs/led.yml --attach`
