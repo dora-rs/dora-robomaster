@@ -1,6 +1,21 @@
 # Dora-Robomaster
 
-This project aims to use Dora to enhance the capabilities of a RoboMaster S1.
+This project aims to use Dora to enhance the capabilities of a RoboMaster S1. 
+Click here to see the [First presentation for dora-robomaster](https://docs.google.com/presentation/d/18jjlBskEOXih-jM1cYWa8fFOB9j8ltHgOx4vg5BSuk0/edit?usp=sharing)
+
+### Getting Started
+
+command to start the demo:
+
+```bash
+alias dora='dora-cli'
+dora up
+dora start graphs/dataflow.yml --attach
+```
+
+start the reaction lighting test:
+`dora start graphs/reaction.yml --attach`
+
 
 ## Installation of the Robomaster S1 Hack
 
@@ -37,16 +52,6 @@ Before you get started, you'll need the following:
 7. Execute the upload.sh script located in the folder `s1_SDK`.
 8. Once everything has been executed, restart the S1 by turning it off and then back on. While it's booting up, you should hear two chimes instead of the usual single chime, indicating that the hack has been successful.
 
-### Getting Started
 
-command to start the demo:
 
-```bash
-alias dora='dora-cli'
-dora up
-dora start graphs/dataflow.yml --attach
-```
-
-start the reaction lighting test:
-`dora start graphs/reaction.yml --attach`
 
