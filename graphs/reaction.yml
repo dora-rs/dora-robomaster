@@ -1,0 +1,40 @@
+nodes:
+  - id: robot
+    operator:
+      python: ../operators/robot.py
+      inputs:
+        blaster: 
+          source: planning/blaster
+          queue_size: 1
+        led:
+          source: planning/led
+          queue_size: 1
+        tick:
+          source: dora/timer/millis/50
+          queue_size: 1
+      outputs:
+        - image
+        - position
+  - id: plot
+    operator:
+      python: ../operators/plot.py
+      inputs:
+        image: robot/image
+        bbox: object_detection/bbox
+  - id: object_detection
+    operator:
+      python: ../operators/object_detection.py
+      inputs:
+        image:
+          source: robot/image
+          queue_size: 1
+      outputs:
+        - bbox
+  - id: planning
+    operator:
+      python: ../operators/reaction_op.py
+      inputs:
+        bbox: object_detection/bbox
+      outputs:
+        - led
+        - blaster

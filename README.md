@@ -47,5 +47,6 @@ dora up
 dora start graphs/dataflow.yml --attach
 ```
 
-start the led test:
-`dora start graphs/led.yml --attach`
+start the reaction lighting test:
+`dora start graphs/reaction.yml --attach`
+
