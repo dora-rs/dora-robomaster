@@ -1,7 +1,7 @@
 # Dora-Robomaster
 
 This project aims to use Dora to enhance the capabilities of a RoboMaster S1. 
-Click here to see the [First presentation for dora-robomaster](https://docs.google.com/presentation/d/18jjlBskEOXih-jM1cYWa8fFOB9j8ltHgOx4vg5BSuk0/edit?usp=sharing)
+You can see the presentation and demos in the folder Presentation_dora/
 
 ### Getting Started
 
