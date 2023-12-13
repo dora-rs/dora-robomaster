@@ -14,8 +14,8 @@ from dora import DoraStatus
 pa.array([])
 
 CI = os.environ.get("CI")
-CAMERA_WIDTH = 640
-CAMERA_HEIGHT = 480
+CAMERA_WIDTH = 960
+CAMERA_HEIGHT = 540
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -94,9 +94,10 @@ class Operator:
                 2,
             )
 
+            d = ((12 * 22) / (max_y - (CAMERA_HEIGHT / 2))) / 2.77 - 0.08
             cv2.putText(
                 self.image,
-                LABELS[int(label)] + f", {confidence:0.2f}",
+                LABELS[int(label)] + f", d={d:.2f}",
                 (int(max_x), int(max_y)),
                 font,
                 0.75,

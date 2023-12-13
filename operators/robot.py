@@ -13,8 +13,8 @@ from utils import LABELS
 from dora import DoraStatus
 
 # Global variables, change it to adapt your needs
-CAMERA_WIDTH = 640
-CAMERA_HEIGHT = 480
+CAMERA_WIDTH = 960
+CAMERA_HEIGHT = 540
 FREQ = 20
 CONN = "ap"
 font = cv2.FONT_HERSHEY_SIMPLEX

@@ -10,6 +10,7 @@ import pyarrow as pa
 from utils import LABELS
 from dora import DoraStatus
 
+CAMERA_HEIGHT = 540
 DISTANCE = 2
 
 
@@ -64,36 +65,26 @@ class Operator:
                     confidence,
                     label,
                 ] = bbox
-                if (
-                    min_x > 276
-                    and min_x < 288
-                    and max_x > 361
-                    and max_x < 370
-                    and min_y > 422
-                    and min_y < 430
-                    and max_y > 479
-                ):
-                    continue
                 if LABELS[int(label)] == "ABC":
                     continue
 
                 if (
-                    (min_x + max_x) / 2 > 240
-                    and (min_x + max_x) / 2 < 400
+                    (min_x + max_x) / 2 > 385
+                    and (min_x + max_x) / 2 < 575
                     and LABELS[int(label)] == "bottle"
                 ):
                     blaster = 128
-
-                if max_y > 390 and (
-                    (max_x > 260 and min_x <= 260)
-                    or (min_x < 380 and max_x >= 380)
-                    or (min_x < 260 and max_x > 380)
-                    or (min_x > 260 and max_x < 380)
+                d = ((12 * 22) / (max_y - (CAMERA_HEIGHT / 2))) / 2.77 - 0.08
+                if d < 0.5 and (
+                    (max_x > 385 and min_x <= 385)
+                    or (min_x < 575 and max_x >= 575)
+                    or (min_x < 385 and max_x > 575)
+                    or (min_x > 385 and max_x < 575)
                 ):
-                    if (min_x + max_x) / 2 > 320:
+                    if (min_x + max_x) / 2 > 470:
                         y = -0.15
                         acc = 0.4
-                    elif (min_x + max_x) / 2 <= 320:
+                    elif (min_x + max_x) / 2 <= 470:
                         y = 0.15
                         acc = 0.4
 

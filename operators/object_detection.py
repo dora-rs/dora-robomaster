@@ -11,8 +11,8 @@ from dora import DoraStatus
 
 pa.array([])
 
-CAMERA_WIDTH = 640
-CAMERA_HEIGHT = 480
+CAMERA_WIDTH = 960
+CAMERA_HEIGHT = 540
 
 
 class Operator:
