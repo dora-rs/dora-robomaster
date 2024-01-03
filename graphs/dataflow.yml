@@ -4,7 +4,7 @@ nodes:
       python: ../operators/robot.py
       inputs:
         stop: planning/stop
-        blaster: 
+        blaster:
           source: planning/blaster
           queue_size: 1
         led:
@@ -17,23 +17,28 @@ nodes:
           source: dora/timer/millis/50
           queue_size: 1
       outputs:
-        - image
         - position
   - id: plot
     operator:
       python: ../operators/plot.py
       inputs:
-        image: robot/image
+        image: webcam/image
         bbox: object_detection/bbox
   - id: object_detection
     operator:
       python: ../operators/object_detection.py
       inputs:
         image:
-          source: robot/image
+          source: webcam/image
           queue_size: 1
       outputs:
         - bbox
+  - id: webcam
+    custom:
+      source: python
+      args: ../operators/opencv_stream.py
+      outputs:
+        - image
   - id: planning
     operator:
       python: ../operators/planning_op.py

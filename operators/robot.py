@@ -27,9 +27,11 @@ class Operator:
 
     def __init__(self):
         self.ep_robot = robot.Robot()
-        self.ep_robot.initialize(conn_type=CONN)
-        self.ep_robot.camera.start_video_stream(display=False)
-        self.bboxs = []
+        assert self.ep_robot.initialize(conn_type=CONN), "Could not initialize ep_robot"
+        assert self.ep_robot.camera.start_video_stream(
+            display=False
+        ), "Could not start video stream"
+
         self.ep_robot.gimbal.recenter().wait_for_completed()
         self.position = [0, 0, 0]
         self.ep_robot.chassis.sub_position(freq=FREQ, callback=self.position_callback)
@@ -37,8 +39,6 @@ class Operator:
 
     def position_callback(self, position_info):
         x, y, z = position_info
-        print(x, y, z, flush=True)
-        print(position_info, flush=True)
         self.position = [x, y, z]
 
     def on_event(
@@ -49,15 +49,6 @@ class Operator:
         event_type = dora_event["type"]
         if event_type == "INPUT":
             if dora_event["id"] == "tick":
-                frame = self.ep_robot.camera.read_cv2_image(
-                    timeout=3, strategy="newest"
-                )
-                frame = cv2.resize(frame, (CAMERA_WIDTH, CAMERA_HEIGHT))
-                send_output(
-                    "image",
-                    pa.array(frame.ravel()),
-                    dora_event["metadata"],
-                )
                 send_output(
                     "position",
                     pa.array(self.position),
