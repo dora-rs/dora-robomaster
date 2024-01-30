@@ -14,7 +14,7 @@ CI = os.environ.get("CI")
 
 CAMERA_WIDTH = 960
 CAMERA_HEIGHT = 540
-CAMERA_INDEX = int(os.getenv("CAMERA_INDEX", 2))
+CAMERA_INDEX = int(os.getenv("CAMERA_INDEX", 0))
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 

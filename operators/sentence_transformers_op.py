@@ -74,11 +74,6 @@ class Operator:
             if dora_event["id"] == "query":
                 values = dora_event["value"].to_pylist()
 
-                # Only modify code if the word please is used.
-                if not ("please" in values[0] or "Please" in values[0]):
-                    print("Did not use please word")
-                    return DoraStatus.CONTINUE
-
                 query_embeddings = self.model.encode(values)
                 output = search(
                     query_embeddings,

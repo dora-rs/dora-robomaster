@@ -7,12 +7,14 @@ import pyarrow as pa
 import numpy as np
 from ctransformers import AutoModelForCausalLM
 
+MAX_NUMBER_LINES = 20
+
 
 def search_most_simlar_line(text, searched_line):
     lines = text.split("\n")
     values = []
 
-    for line in lines:
+    for line in lines[:MAX_NUMBER_LINES]:
         values.append(pylcs.edit_distance(line, searched_line))
     output = lines[np.array(values).argmin()]
     return output
@@ -47,6 +49,7 @@ def replace_source_code(source_code, gen_replacement):
         .replace("\n", "")
     )
     intermediate_result = replace_code_with_indentation(initial, replacement)
+    print("Intermediate result: %s" % intermediate_result)
     end_result = source_code.replace(initial, intermediate_result)
     return end_result
 
@@ -75,11 +78,13 @@ class Operator:
         if dora_event["type"] == "INPUT":
             input = dora_event["value"][0].as_py()
 
-            prompt = f"{input['raw']} \n {input['query']}.  "
+            prompt = f"{input['raw'][:400]} \n\n {input['query']}.  "
+            print("revieved prompt: {}".format(prompt))
             output = self.ask_mistral(
                 "You're a code expert. Respond with only one line of code that modify a constant variable. Keep the uppercase.",
                 prompt,
             )
+            print("output: {}".format(output))
             source_code = replace_source_code(input["raw"], output)
             save_as(source_code, input["path"])
         return DoraStatus.CONTINUE
@@ -122,9 +127,9 @@ if __name__ == "__main__":
             "value": pa.array(
                 [
                     {
-                        "raw": raw[:400],
+                        "raw": raw,
                         "path": path,
-                        "query": "Set gimbal yaw to 20",
+                        "query": "Set yaw to 20",
                     }
                 ]
             ),

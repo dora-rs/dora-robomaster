@@ -3,17 +3,17 @@ X = 0
 # left-right: [-1,1]
 Y = 0
 # rotation: [-1800,1800]
-Z = 1000
+Z = 0
 # xy speed in m/s: [0.5, 2]
-XY_SPEED = 1
+XY_SPEED = 0.5
 # z rotation speed in °/s: [10, 540]
-Z_SPEED = 10
+Z_SPEED = 0
 # pitch-axis angle in degrees: [-55, 55]
-GIMBAL_PITCH = 0
+PITCH = 0
 # yaw-axis angle in degrees: [-55, 55]
-GIMBAL_YAW = 0
+YAW = 0
 GOAL_OBJECTIVES = [X, Y, Z]
-GIMBAL_POSITION_GOAL = [GIMBAL_PITCH, GIMBAL_YAW]
+GIMBAL_POSITION_GOAL = [PITCH, YAW]
 
 from typing import Callable, Optional, Union
 
@@ -92,13 +92,10 @@ class Operator:
                     dora_event["metadata"],
                 )
 
-            if (
-                abs(gimbal_pitch - GIMBAL_PITCH) > 0.2
-                or abs(gimbal_yaw - GIMBAL_YAW) > 0.2
-            ):
+            if abs(gimbal_pitch - PITCH) > 0.2 or abs(gimbal_yaw - YAW) > 0.2:
                 send_output(
                     "gimbal_control",
-                    pa.array([GIMBAL_PITCH, GIMBAL_YAW, 20, 20]),
+                    pa.array([PITCH, YAW, 20, 20]),
                     dora_event["metadata"],
                 )
 
