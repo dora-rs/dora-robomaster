@@ -80,10 +80,8 @@ class Operator:
                 "You're a code expert. Respond with only one line of code that modify a constant variable. Keep the uppercase.",
                 prompt,
             )
-            send_output(output)
             source_code = replace_source_code(input["raw"], output)
-            send_output(source_code)
-            # save_as(source_code, input["path"])
+            save_as(source_code, input["path"])
         return DoraStatus.CONTINUE
 
     def ask_mistral(self, system_message, prompt):
