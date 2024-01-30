@@ -34,12 +34,20 @@ class Operator:
 
         self.ep_robot.gimbal.recenter().wait_for_completed()
         self.position = [0, 0, 0]
-        self.ep_robot.chassis.sub_position(freq=FREQ, callback=self.position_callback)
+        self.gimbal_position = [0, 0]
+        # self.ep_robot.chassis.sub_position(freq=FREQ, callback=self.position_callback)
+        # self.ep_robot.gimbal.sub_angle(freq=FREQ, callback=self.gimbal_callback)
         self.event = None
 
-    def position_callback(self, position_info):
-        x, y, z = position_info
-        self.position = [x, y, z]
+    # def position_callback(self, position_info):
+    # x, y, z = position_info
+    # print("position info: ", position_info, flush=True)
+    # self.position = [x, y, z]
+
+    # def gimbal_callback(self, gimbal_info):
+    # p, y = gimbal_info
+    # print("gimbal info: ", gimbal_info, flush=True)
+    # self.gimbal_position = [p, y]
 
     def on_event(
         self,
@@ -51,20 +59,49 @@ class Operator:
             if dora_event["id"] == "tick":
                 send_output(
                     "position",
-                    pa.array(self.position),
+                    pa.array(self.position + self.gimbal_position),
                     dora_event["metadata"],
                 )
 
             elif dora_event["id"] == "control":
-                print("received control", flush=True)
                 if not (
                     self.event is not None
                     and not (self.event._event.isSet() and self.event.is_completed)
                 ):
-                    [x, y, z, speed] = dora_event["value"].to_numpy()
+                    [x, y, z, xy_speed, z_speed] = dora_event["value"].to_numpy()
+                    print(f"received control: {x, y, z, xy_speed, z_speed}", flush=True)
                     self.event = self.ep_robot.chassis.move(
-                        x=x, y=y, z=z, xy_speed=speed
+                        x=x, y=y, z=z, xy_speed=xy_speed, z_speed=z_speed
                     )
+                    self.position[0] += x
+                    self.position[1] += y
+                    self.position[2] += z
+                else:
+                    print("control not completed", flush=True)
+                    print("Set: ", self.event._event.isSet(), flush=True)
+                    print("Completed:", self.event.is_completed, flush=True)
+
+            elif dora_event["id"] == "gimbal_control":
+                if not (
+                    self.event is not None
+                    and not (self.event._event.isSet() and self.event.is_completed)
+                ):
+                    [
+                        gimbal_pitch,
+                        gimbal_yaw,
+                        gimbal_pitch_speed,
+                        gimbal_yaw_speed,
+                    ] = dora_event["value"].to_numpy()
+
+                    self.event = self.ep_robot.gimbal.moveto(
+                        pitch=gimbal_pitch,
+                        yaw=gimbal_yaw,
+                        pitch_speed=gimbal_pitch_speed,
+                        yaw_speed=gimbal_yaw_speed,
+                    )
+                    self.gimbal_position[0] = gimbal_pitch
+                    self.gimbal_position[1] = gimbal_yaw
+
             elif dora_event["id"] == "blaster":
                 [brightness] = dora_event["value"].to_numpy()
                 if brightness > 0:
@@ -80,18 +117,4 @@ class Operator:
                     comp=led.COMP_ALL, r=r, g=g, b=b, effect=led.EFFECT_ON
                 )
 
-            elif dora_event["id"] == "stop":
-                return DoraStatus.STOP
-            return DoraStatus.CONTINUE
-
-        elif event_type == "STOP":
-            print("received stop")
-            return DoraStatus.STOP
-        else:
-            print("received unexpected event:", event_type)
         return DoraStatus.CONTINUE
-
-    def __del__(self):
-        self.ep_robot.unsub_position()
-        self.ep_robot.camera.stop_video_stream()
-        self.ep_robot.close()
