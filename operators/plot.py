@@ -19,6 +19,13 @@ CAMERA_HEIGHT = 540
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
+writer = cv2.VideoWriter(
+    "output01.avi",
+    cv2.VideoWriter_fourcc(*"MJPG"),
+    30,
+    (CAMERA_WIDTH, CAMERA_HEIGHT),
+)
+
 
 class Operator:
     """
@@ -107,6 +114,7 @@ class Operator:
             )
 
         if CI != "true":
+            writer.write(self.image)
             cv2.imshow("frame", self.image)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 return DoraStatus.STOP
