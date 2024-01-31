@@ -22,9 +22,6 @@ class Operator:
     Infering object from images
     """
 
-    def __init__(self):
-        pass
-
     def on_event(
         self,
         dora_event,
