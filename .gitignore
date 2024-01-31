@@ -2,3 +2,4 @@ graphs/yolov5n.pt
 *.pt
 operators/__pycache__/
 __pycache__/
+*.avi

@@ -53,4 +53,6 @@ pyarrow
 maturin
 
 sounddevice
-whisper
+openai-whisper
+sentence-transformers
+pynput
