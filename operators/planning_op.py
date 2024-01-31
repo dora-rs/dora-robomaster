@@ -1,21 +1,21 @@
 # forward-backward: [-1,1]
-X = 0
+X = 1
 # left-right: [-1,1]
 Y = 0
 # rotation: [-1800,1800]
 Z = 0
-# xy speed in m/s: [0.5, 2]
 XY_SPEED = 0.5
 # z rotation speed in °/s: [10, 540]
 Z_SPEED = 0
 # pitch-axis angle in degrees: [-55, 55]
 PITCH = 0
 # yaw-axis angle in degrees: [-55, 55]
-YAW = 0
+YAW = 40
+
+
 GOAL_OBJECTIVES = [X, Y, Z]
 GIMBAL_POSITION_GOAL = [PITCH, YAW]
 
-from typing import Callable, Optional, Union
 
 import numpy as np
 import pyarrow as pa
@@ -45,10 +45,6 @@ def estimated_distance(y):
 
 
 class Operator:
-    """
-    Infering object from images
-    """
-
     def __init__(self):
         self.over = False
         self.start = False
@@ -58,7 +54,7 @@ class Operator:
     def on_event(
         self,
         dora_event: dict,
-        send_output: Callable[[str, Union[bytes, pa.Array], Optional[dict]], None],
+        send_output,
     ) -> DoraStatus:
         if dora_event["type"] != "INPUT":
             return DoraStatus.CONTINUE
@@ -68,24 +64,17 @@ class Operator:
             self.position = [x, y, z]
             self.gimbal_position = [gimbal_pitch, gimbal_yaw]
 
-            direction = np.array(GOAL_OBJECTIVES) - np.array(self.position)
+            direction = np.clip(
+                np.array(GOAL_OBJECTIVES) - np.array(self.position), -1, 1
+            )
             print("position ", dora_event["value"].to_numpy(), flush=True)
             print(direction, flush=True)
             if any(abs(direction) > 0.1):
-                if abs(direction[0]) > 0.1:
-                    x = direction[0]
-                else:
-                    x = 0
-                if abs(direction[1]) > 0.1:
-                    y = direction[1]
-                else:
-                    y = 0
-                if abs(direction[2]) > 0.1:
-                    z = direction[2]
-                else:
-                    z = 0
+                x = direction[0]
+                y = direction[1]
+                z = direction[2]
 
-                print("control ", x, y, flush=True)
+                print("control ", x, y, z, flush=True)
                 send_output(
                     "control",
                     pa.array([x, y, 0, XY_SPEED, Z_SPEED]),

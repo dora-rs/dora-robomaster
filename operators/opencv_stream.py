@@ -6,8 +6,8 @@ node = Node()
 # TCP stream URL (replace with your stream URL)
 TCP_STREAM_URL = "tcp://192.168.2.1:40921"
 # Global variables, change it to adapt your needs
-CAMERA_WIDTH = 640
-CAMERA_HEIGHT = 480
+CAMERA_WIDTH = 960
+CAMERA_HEIGHT = 540
 
 # Create a VideoCapture object using the TCP stream URL
 cap = cv2.VideoCapture(TCP_STREAM_URL)
