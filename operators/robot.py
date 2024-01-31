@@ -1,32 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from robomaster import robot, blaster, led, gimbal
+from robomaster import robot, blaster, led
 from typing import Callable, Optional, Union
 
 # from robot import RobotController
-import cv2
-import numpy as np
 import pyarrow as pa
-from utils import LABELS
 
 from dora import DoraStatus
 
 # Global variables, change it to adapt your needs
-CAMERA_WIDTH = 960
-CAMERA_HEIGHT = 540
 FREQ = 20
 CONN = "ap"
-font = cv2.FONT_HERSHEY_SIMPLEX
 
 
 class Operator:
-    """
-    Sending image from webcam to the dataflow
-    """
-
     def __init__(self):
         self.ep_robot = robot.Robot()
+        print("Initializing robot...")
         assert self.ep_robot.initialize(conn_type=CONN), "Could not initialize ep_robot"
         assert self.ep_robot.camera.start_video_stream(
             display=False
@@ -35,19 +26,7 @@ class Operator:
         self.ep_robot.gimbal.recenter().wait_for_completed()
         self.position = [0, 0, 0]
         self.gimbal_position = [0, 0]
-        # self.ep_robot.chassis.sub_position(freq=FREQ, callback=self.position_callback)
-        # self.ep_robot.gimbal.sub_angle(freq=FREQ, callback=self.gimbal_callback)
         self.event = None
-
-    # def position_callback(self, position_info):
-    # x, y, z = position_info
-    # print("position info: ", position_info, flush=True)
-    # self.position = [x, y, z]
-
-    # def gimbal_callback(self, gimbal_info):
-    # p, y = gimbal_info
-    # print("gimbal info: ", gimbal_info, flush=True)
-    # self.gimbal_position = [p, y]
 
     def on_event(
         self,
