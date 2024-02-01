@@ -14,7 +14,7 @@ CI = os.environ.get("CI")
 
 CAMERA_WIDTH = 960
 CAMERA_HEIGHT = 540
-CAMERA_INDEX = int(os.getenv("CAMERA_INDEX", 0))
+CAMERA_INDEX = int(os.getenv("CAMERA_INDEX", 2))
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -27,8 +27,8 @@ class Operator:
     def __init__(self):
         self.video_capture = cv2.VideoCapture(CAMERA_INDEX)
         self.start_time = time.time()
-        self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-        self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+        # self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+        # self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
 
     def on_event(
         self,

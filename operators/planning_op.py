@@ -1,26 +1,22 @@
-# forward-backward: [-1,1]
-X = 1
-# left-right: [-1,1]
-Y = 0
-# rotation: [-1800,1800]
-Z = 0
-XY_SPEED = 0.5
-# z rotation speed in °/s: [10, 540]
-Z_SPEED = 0
-# pitch-axis angle in degrees: [-55, 55]
-PITCH = 0
-# yaw-axis angle in degrees: [-55, 55]
-YAW = 40
-
-
-GOAL_OBJECTIVES = [X, Y, Z]
-GIMBAL_POSITION_GOAL = [PITCH, YAW]
-
-
 import numpy as np
 import pyarrow as pa
 from dora import DoraStatus
 
+# forward-backward: [-1,1]
+X = 0
+# left-right: [-1,1]
+Y = 0
+SPEED = 0.5
+# z rotation speed in °/s: [10, 540]
+# pitch-axis angle in degrees: [-55, 55]
+PITCH = 0
+# yaw-axis angle in degrees: [-55, 55]
+ROTATION = -15
+RGB = [0, 0, 0]  # [0, 255]
+BRIGHTNESS = [0]  # [0, 128]
+
+GOAL_OBJECTIVES = [X, Y, 0]
+GIMBAL_POSITION_GOAL = [PITCH, ROTATION]
 
 CAMERA_WIDTH = 960
 CAMERA_HEIGHT = 540
@@ -50,6 +46,8 @@ class Operator:
         self.start = False
         self.position = [0, 0, 0]
         self.gimbal_position = [0, 0]
+        self.brightness = [0]
+        self.rgb = [0, 0, 0]
 
     def on_event(
         self,
@@ -77,16 +75,30 @@ class Operator:
                 print("control ", x, y, z, flush=True)
                 send_output(
                     "control",
-                    pa.array([x, y, 0, XY_SPEED, Z_SPEED]),
+                    pa.array([x, y, 0, SPEED, 0]),
                     dora_event["metadata"],
                 )
 
-            if abs(gimbal_pitch - PITCH) > 0.2 or abs(gimbal_yaw - YAW) > 0.2:
+            if abs(gimbal_pitch - PITCH) > 0.2 or abs(gimbal_yaw - ROTATION) > 0.2:
                 send_output(
                     "gimbal_control",
-                    pa.array([PITCH, YAW, 20, 20]),
+                    pa.array([PITCH, ROTATION, 20, 20]),
                     dora_event["metadata"],
                 )
+            if RGB != self.rgb:
+                send_output(
+                    "led",
+                    pa.array(RGB),
+                    dora_event["metadata"],
+                )
+                self.rgb = RGB
+            if BRIGHTNESS != self.brightness:
+                send_output(
+                    "blaster",
+                    pa.array(BRIGHTNESS),
+                    dora_event["metadata"],
+                )
+                self.brightness = BRIGHTNESS
 
         return DoraStatus.CONTINUE
 

@@ -7,6 +7,7 @@ import pyarrow as pa
 import numpy as np
 from ctransformers import AutoModelForCausalLM
 
+MIN_NUMBER_LINES = 4
 MAX_NUMBER_LINES = 20
 
 
@@ -14,9 +15,9 @@ def search_most_simlar_line(text, searched_line):
     lines = text.split("\n")
     values = []
 
-    for line in lines[:MAX_NUMBER_LINES]:
+    for line in lines[MIN_NUMBER_LINES:MAX_NUMBER_LINES]:
         values.append(pylcs.edit_distance(line, searched_line))
-    output = lines[np.array(values).argmin()]
+    output = lines[np.array(values).argmin() + MIN_NUMBER_LINES]
     return output
 
 
@@ -30,13 +31,14 @@ def strip_indentation(code_block):
 def replace_code_with_indentation(original_code, replacement_code):
     # Split the original code into lines
     lines = original_code.splitlines()
+    if len(lines) != 0:
+        # Preserve the indentation of the first line
+        indentation = lines[0][: len(lines[0]) - len(lines[0].lstrip())]
 
-    # Preserve the indentation of the first line
-    indentation = lines[0][: len(lines[0]) - len(lines[0].lstrip())]
-
-    # Create a new list of lines with the replacement code and preserved indentation
-    new_code_lines = indentation + replacement_code
-
+        # Create a new list of lines with the replacement code and preserved indentation
+        new_code_lines = indentation + replacement_code
+    else:
+        new_code_lines = replacement_code
     return new_code_lines
 
 
@@ -81,7 +83,7 @@ class Operator:
             prompt = f"{input['raw'][:400]} \n\n {input['query']}.  "
             print("revieved prompt: {}".format(prompt))
             output = self.ask_mistral(
-                "You're a code expert. Respond with only one line of code that modify a constant variable. Keep the uppercase.",
+                "You're a code expert. Respond with only one line of code that modify a constant variable. Keep the uppercase. No explaination needed.",
                 prompt,
             )
             print("output: {}".format(output))

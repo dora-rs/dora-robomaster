@@ -1,0 +1,121 @@
+nodes:
+  - id: robot
+    operator:
+      python: ../operators/robot.py
+      inputs:
+        stop: planning/stop
+        blaster:
+          source: planning/blaster
+          queue_size: 1
+        led:
+          source: planning/led
+          queue_size: 1
+        control:
+          source: planning/control
+          queue_size: 1
+        gimbal_control:
+          source: planning/gimbal_control
+          queue_size: 1
+        tick:
+          source: dora/timer/millis/50
+          queue_size: 1
+      outputs:
+        - position
+  # - id: bot_plot
+  # operator:
+  # python: ../operators/plot.py
+  # inputs:
+  # image: bot_webcam/image
+  # bbox: object_detection/bbox
+  - id: object_detection
+    operator:
+      python: ../operators/object_detection.py
+      inputs:
+        image:
+          source: bot_webcam/image
+          queue_size: 1
+      outputs:
+        - bbox
+  - id: bot_webcam
+    custom:
+      source: ../operators/opencv_stream.py
+      outputs:
+        - image
+  - id: planning
+    operator:
+      python: ../operators/planning_op.py
+      inputs:
+        position: robot/position
+        # bbox: object_detection/bbox
+      outputs:
+        - control
+        - gimbal_control
+        - led
+        - blaster
+        - stop
+
+  ## Speech to text
+  - id: mic_binding
+    custom:
+      source: ../operators/keybinding_op.py
+      inputs:
+        tick: dora/timer/millis/50
+      outputs:
+        - mic_on
+
+  - id: microphone
+    operator:
+      python: ../operators/microphone_op.py
+      inputs:
+        mic_on: mic_binding/mic_on
+      outputs:
+        - audio
+
+  - id: whisper
+    operator:
+      python: ../operators/whisper_op.py
+      inputs:
+        audio: microphone/audio
+      outputs:
+        - text
+
+  ## Code Modifier
+  - id: vectordb
+    operator:
+      python: ../operators/sentence_transformers_op.py
+      inputs:
+        query: whisper/text
+      outputs:
+        - raw_file
+
+  - id: mistral
+    operator:
+      python: ../operators/mistral_op.py
+      inputs:
+        raw_file: vectordb/raw_file
+      outputs:
+        - code
+
+  ### Second Camera
+  - id: webcam
+    operator:
+      python: ../operators/webcam.py
+      inputs:
+        tick: dora/timer/millis/50
+      outputs:
+        - image
+
+  - id: plot_webcam
+    operator:
+      python: ../operators/plot.py
+      inputs:
+        image: webcam/image
+        text: whisper/text
+
+  - id: plot_bot
+    operator:
+      python: ../operators/plot.py
+      inputs:
+        image: bot_webcam/image
+        text: whisper/text
+        bbox: object_detection/bbox
