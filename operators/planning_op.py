@@ -7,12 +7,12 @@ X = 0
 # left-right: [-1,1]
 Y = 0
 SPEED = 0.5
-# z rotation speed in °/s: [10, 540]
 # pitch-axis angle in degrees: [-55, 55]
 PITCH = 0
 # yaw-axis angle in degrees: [-55, 55]
-ROTATION = -15
-RGB = [0, 0, 0]  # [0, 255]
+ROTATION = 0
+# RGB LED [0, 255]
+RGB = [0, 0, 0]
 BRIGHTNESS = [0]  # [0, 128]
 
 GOAL_OBJECTIVES = [X, Y, 0]

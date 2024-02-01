@@ -8,7 +8,7 @@ import numpy as np
 from ctransformers import AutoModelForCausalLM
 
 MIN_NUMBER_LINES = 4
-MAX_NUMBER_LINES = 20
+MAX_NUMBER_LINES = 21
 
 
 def search_most_simlar_line(text, searched_line):
@@ -80,14 +80,16 @@ class Operator:
         if dora_event["type"] == "INPUT":
             input = dora_event["value"][0].as_py()
 
-            prompt = f"{input['raw'][:400]} \n\n {input['query']}.  "
+            with open(input["path"], "r", encoding="utf8") as f:
+                raw = f.read()
+            prompt = f"{raw[:400]} \n\n {input['query']}.  "
             print("revieved prompt: {}".format(prompt))
             output = self.ask_mistral(
-                "You're a code expert. Respond with only one line of code that modify a constant variable. Keep the uppercase. No explaination needed.",
+                "You're a python code expert. Respond with only one line of code that modify a constant variable. Keep the uppercase.",
                 prompt,
             )
             print("output: {}".format(output))
-            source_code = replace_source_code(input["raw"], output)
+            source_code = replace_source_code(raw, output)
             save_as(source_code, input["path"])
         return DoraStatus.CONTINUE
 
@@ -131,7 +133,7 @@ if __name__ == "__main__":
                     {
                         "raw": raw,
                         "path": path,
-                        "query": "Set yaw to 20",
+                        "query": "Set rotation to 20",
                     }
                 ]
             ),

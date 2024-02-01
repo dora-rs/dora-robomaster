@@ -35,6 +35,7 @@ class Operator:
             # result = whisper.decode(model, mel, options)
             result = model.transcribe(audio, language="en")
             text = result["text"]
+            print(text, flush=True)
 
             send_output("text", pa.array([text]), dora_event["metadata"])
         return DoraStatus.CONTINUE

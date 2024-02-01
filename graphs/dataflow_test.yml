@@ -41,6 +41,31 @@ nodes:
       source: ../operators/opencv_stream.py
       outputs:
         - image
+
+  - id: plot_bot
+    operator:
+      python: ../operators/plot.py
+      inputs:
+        image: bot_webcam/image
+        text: whisper/text
+        bbox: object_detection/bbox
+  
+  ### Second Camera
+  - id: webcam
+    operator:
+      python: ../operators/webcam.py
+      inputs:
+        tick: dora/timer/millis/50
+      outputs:
+        - image
+
+  - id: plot_webcam
+    operator:
+      python: ../operators/plot.py
+      inputs:
+        image: webcam/image
+        text: whisper/text
+
   - id: planning
     operator:
       python: ../operators/planning_op.py
@@ -55,11 +80,9 @@ nodes:
         - stop
 
   ## Speech to text
-  - id: mic_binding
+  - id: keyboard
     custom:
       source: ../operators/keybinding_op.py
-      inputs:
-        tick: dora/timer/millis/50
       outputs:
         - mic_on
 
@@ -67,7 +90,7 @@ nodes:
     operator:
       python: ../operators/microphone_op.py
       inputs:
-        mic_on: mic_binding/mic_on
+        mic_on: keyboard/mic_on
       outputs:
         - audio
 
@@ -95,27 +118,3 @@ nodes:
         raw_file: vectordb/raw_file
       outputs:
         - code
-
-  ### Second Camera
-  - id: webcam
-    operator:
-      python: ../operators/webcam.py
-      inputs:
-        tick: dora/timer/millis/50
-      outputs:
-        - image
-
-  - id: plot_webcam
-    operator:
-      python: ../operators/plot.py
-      inputs:
-        image: webcam/image
-        text: whisper/text
-
-  - id: plot_bot
-    operator:
-      python: ../operators/plot.py
-      inputs:
-        image: bot_webcam/image
-        text: whisper/text
-        bbox: object_detection/bbox
