@@ -71,7 +71,7 @@ nodes:
       python: ../operators/planning_op.py
       inputs:
         position: robot/position
-        # bbox: object_detection/bbox
+        bbox: object_detection/bbox
       outputs:
         - control
         - gimbal_control
@@ -114,6 +114,7 @@ nodes:
   - id: mistral
     operator:
       python: ../operators/mistral_op.py
+      # python: ../operators/chatgpt_op.py
       inputs:
         raw_file: vectordb/raw_file
       outputs:

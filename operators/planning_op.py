@@ -48,6 +48,8 @@ class Operator:
         self.gimbal_position = [0, 0]
         self.brightness = [0]
         self.rgb = [0, 0, 0]
+        self.bboxs = []
+        self.objects_distances = []
 
     def on_event(
         self,
@@ -57,7 +59,14 @@ class Operator:
         if dora_event["type"] != "INPUT":
             return DoraStatus.CONTINUE
 
-        if dora_event["id"] == "position":
+        if dora_event["id"] == "bbox":
+            bboxs = dora_event["value"].to_numpy()
+            self.bboxs = np.reshape(
+                bboxs, (-1, 6)
+            )  # [ min_x, min_y, max_x, max_y, confidence, label ]
+            if len(self.bboxs) > 0:
+                self.objects_distances = estimated_distance(self.bboxs[:, 3])
+        elif dora_event["id"] == "position":
             [x, y, z, gimbal_pitch, gimbal_yaw] = dora_event["value"].to_numpy()
             self.position = [x, y, z]
             self.gimbal_position = [gimbal_pitch, gimbal_yaw]
@@ -101,69 +110,3 @@ class Operator:
                 self.brightness = BRIGHTNESS
 
         return DoraStatus.CONTINUE
-
-
-a = """
-
-        elif dora_event["id"] == "bbox":
-            if not self.start:
-                send_output("led", pa.array([255, 0, 0]), dora_event["metadata"])
-                self.start = True
-            blaster = 0
-            x, y, z, acc = 0, 0, 0, 0
-            bboxs = dora_event["value"].to_numpy()
-            bboxs = np.reshape(bboxs, (-1, 6))
-            obstacle = False
-            if bboxs.len() > 0:
-                for bbox in bboxs:
-                    [
-                        min_x,
-                        min_y,
-                        max_x,
-                        max_y,
-                        confidence,
-                        label,
-                    ] = bbox
-
-                    x_center = (min_x + max_x) / 2
-                    if LABELS[int(label)] == "ABC":
-                        continue
-
-                    # Blast light into bottle if it's in the middle
-                    if (
-                        abs(x_center - CAMERA_WIDTH / 2) < 100
-                        and LABELS[int(label)] == "bottle"
-                    ):
-                        blaster = 128
-
-                    overlap_planning = do_rectangles_overlap(
-                        [
-                            min_x,
-                            estimated_distance(max_y),
-                            max_x,
-                            estimated_distance(min_y),
-                        ],
-                        [CAMERA_WIDTH / 2 - 100, 0, CAMERA_WIDTH / 2 + 100, 0.5],
-                    )
-                    # Computed depth based on expirmental measurement of the bottom of the rectangle
-                    if overlap_planning:
-                        if x_center > CAMERA_WIDTH / 2:
-                            y = -0.15
-                            acc = 0.4
-                        else:
-                            y = 0.15
-                            acc = 0.4
-
-                        obstacle = True
-
-                        break
-                if obstacle == False:
-                    x = 0.2
-                    acc = 0.6
-                arrays = pa.array([x, y, z, acc])
-
-                send_output("blaster", pa.array([blaster]), dora_event["metadata"])
-                send_output("control", arrays, dora_event["metadata"])
-
-        return DoraStatus.CONTINUE
-"""
