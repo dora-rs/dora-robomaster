@@ -110,6 +110,7 @@ nodes:
         query: whisper/text
       outputs:
         - raw_file
+        - raw_file_chatgpt
 
   - id: mistral
     operator:
@@ -117,5 +118,9 @@ nodes:
       # python: ../operators/chatgpt_op.py
       inputs:
         raw_file: vectordb/raw_file
-      outputs:
-        - code
+
+  - id: chatgpt
+    operator:
+      python: ../operators/chatgpt_op.py
+      inputs:
+        raw_file: vectordb/raw_file_chatgpt

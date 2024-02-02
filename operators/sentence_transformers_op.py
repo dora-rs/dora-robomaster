@@ -20,6 +20,8 @@ SHOULD_NOT_BE_INCLUDED = [
 
 SHOULD_BE_INCLUDED = ["planning_op.py"]
 
+MODEL = "CHATGPT"
+
 
 ## Get all python files path in given directory
 def get_all_functions(path):
@@ -88,11 +90,18 @@ class Operator:
                         pa.array([{"raw": raw, "path": path, "query": values[0]}]),
                     )
                 )
-                send_output(
-                    "raw_file",
-                    pa.array([{"raw": raw, "path": path, "query": values[0]}]),
-                    dora_event["metadata"],
-                )
+                if MODEL == "MISTRAL":
+                    send_output(
+                        "raw_file",
+                        pa.array([{"raw": raw, "path": path, "query": values[0]}]),
+                        dora_event["metadata"],
+                    )
+                else:
+                    send_output(
+                        "raw_file_chatgpt",
+                        pa.array([{"raw": raw, "path": path, "query": values[0]}]),
+                        dora_event["metadata"],
+                    )
 
         return DoraStatus.CONTINUE
 
