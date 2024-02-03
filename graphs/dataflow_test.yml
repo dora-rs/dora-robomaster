@@ -3,7 +3,6 @@ nodes:
     operator:
       python: ../operators/robot.py
       inputs:
-        stop: planning/stop
         blaster:
           source: planning/blaster
           queue_size: 1
@@ -17,7 +16,7 @@ nodes:
           source: planning/gimbal_control
           queue_size: 1
         tick:
-          source: dora/timer/millis/50
+          source: dora/timer/millis/100
           queue_size: 1
       outputs:
         - position
@@ -27,6 +26,12 @@ nodes:
   # inputs:
   # image: bot_webcam/image
   # bbox: object_detection/bbox
+  - id: bot_webcam
+    custom:
+      source: ../operators/opencv_stream.py
+      outputs:
+        - image
+
   - id: object_detection
     operator:
       python: ../operators/object_detection.py
@@ -36,26 +41,15 @@ nodes:
           queue_size: 1
       outputs:
         - bbox
-  - id: bot_webcam
-    custom:
-      source: ../operators/opencv_stream.py
-      outputs:
-        - image
 
-  - id: plot_bot
-    operator:
-      python: ../operators/plot.py
-      inputs:
-        image: bot_webcam/image
-        text: whisper/text
-        bbox: object_detection/bbox
-  
   ### Second Camera
   - id: webcam
     operator:
       python: ../operators/webcam.py
       inputs:
-        tick: dora/timer/millis/50
+        tick:
+          source: dora/timer/millis/50
+          queue_size: 1
       outputs:
         - image
 
@@ -66,6 +60,14 @@ nodes:
         image: webcam/image
         text: whisper/text
 
+  - id: plot_bot
+    operator:
+      python: ../operators/plot.py
+      inputs:
+        image: bot_webcam/image
+        text: whisper/text
+        bbox: object_detection/bbox
+  
   - id: planning
     operator:
       python: ../operators/planning_op.py
@@ -77,7 +79,6 @@ nodes:
         - gimbal_control
         - led
         - blaster
-        - stop
 
   ## Speech to text
   - id: keyboard

@@ -1,3 +1,4 @@
+import os
 from openai import OpenAI
 
 
@@ -79,3 +80,35 @@ class Operator:
             save_as(blocks[0], input["path"])
 
         return DoraStatus.CONTINUE
+
+
+if __name__ == "__main__":
+    op = Operator()
+
+    # Path to the current file
+    current_file_path = __file__
+
+    # Directory of the current file
+    current_directory = os.path.dirname(current_file_path)
+
+    path = current_directory + "/planning_op.py"
+    with open(path, "r", encoding="utf8") as f:
+        raw = f.read()
+
+    op.on_event(
+        {
+            "type": "INPUT",
+            "id": "tick",
+            "value": pa.array(
+                [
+                    {
+                        "raw": raw,
+                        "path": path,
+                        "query": "Can you change the RGB to change according to the object distances",
+                    }
+                ]
+            ),
+            "metadata": [],
+        },
+        print,
+    )

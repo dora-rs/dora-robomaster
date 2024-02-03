@@ -20,7 +20,7 @@ SHOULD_NOT_BE_INCLUDED = [
 
 SHOULD_BE_INCLUDED = ["planning_op.py"]
 
-MODEL = "CHATGPT"
+MODEL = "MISTRAL"
 
 
 ## Get all python files path in given directory
