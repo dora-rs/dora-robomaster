@@ -6,11 +6,11 @@ X = 0
 # left-right: [-1,1]
 Y = 0
 SPEED = 0.5
-# pitch-axis angle in degrees: [-55, 55]
+# pitch-axis angle in degrees(int): [-55, 55]
 PITCH = 0
-# yaw-axis angle in degrees: [-55, 55]
+# yaw-axis angle in degrees(int): [-55, 55]
 ROTATION = 0
-# RGB LED [0, 255]
+# RGB LED(int) [0, 255]
 RGB = [0, 0, 0]
 BRIGHTNESS = [0]  # [0, 128]
 
