@@ -2,6 +2,20 @@ import numpy as np
 import pyarrow as pa
 from dora import DoraStatus
 
+X = 0
+# left-right: [-1,1]
+Y = 0
+SPEED = 0.5
+# pitch-axis angle in degrees: [-55, 55]
+PITCH = 0
+# yaw-axis angle in degrees: [-55, 55]
+ROTATION = 0
+# RGB LED [0, 255]
+RGB = [0, 0, 0]
+BRIGHTNESS = [0]  # [0, 128]
+
+GOAL_OBJECTIVES = [X, Y, 0]
+GIMBAL_POSITION_GOAL = [PITCH, ROTATION]
 
 CAMERA_WIDTH = 960
 CAMERA_HEIGHT = 540
@@ -29,31 +43,17 @@ class Operator:
     def __init__(self):
         self.position = [0, 0, 0]
         self.gimbal_position = [0, 0]
-        self.last_brightness = [0]
-        self.last_rgb = [0, 0, 0]
+        self.brightness = [0]
+        self.rgb = [0, 0, 0]
         self.bboxs = []
         self.objects_distances = []
-        # forward-backward: [-1,1]
-        self.x = 0
-        # left-right: [-1,1]
-        self.y = 0
-        self.speed = 0.5
-        # pitch-axis angle in degrees: [-55, 55]
-        self.pitch = 0
-        # yaw-axis angle in degrees: [-55, 55]
-        self.rotation = 20
-        # RGB LED [0, 255]
-        self.rgb = [0, 0, 0]
-        self.brightness = [0]  # [0, 128]
-
-        self.goal_objectives = [self.x, self.y, 0]
-        self.gimbal_position_goal = [self.pitch, self.rotation]
 
     def on_event(
         self,
         dora_event: dict,
         send_output,
     ) -> DoraStatus:
+        global X, Y, Z, SPEED, PITCH, ROTATION, RGB, BRIGHTNESS, GOAL_OBJECTIVES, GIMBAL_POSITION_GOAL
         if dora_event["type"] != "INPUT":
             return DoraStatus.CONTINUE
 
@@ -70,10 +70,10 @@ class Operator:
             self.gimbal_position = [gimbal_pitch, gimbal_yaw]
 
             direction = np.clip(
-                np.array(self.goal_objectives) - np.array(self.position), -1, 1
+                np.array(GOAL_OBJECTIVES) - np.array(self.position), -1, 1
             )
             print("position ", dora_event["value"].to_numpy(), flush=True)
-            print("direction ", direction, flush=True)
+            print(direction, flush=True)
             if any(abs(direction) > 0.1):
                 x = direction[0]
                 y = direction[1]
@@ -82,32 +82,29 @@ class Operator:
                 print("control ", x, y, z, flush=True)
                 send_output(
                     "control",
-                    pa.array([x, y, 0, self.speed, 0]),
+                    pa.array([x, y, 0, SPEED, 0]),
                     dora_event["metadata"],
                 )
 
-            if (
-                abs(gimbal_pitch - self.pitch) > 0.2
-                or abs(gimbal_yaw - self.rotation) > 0.2
-            ):
+            if abs(gimbal_pitch - PITCH) > 0.2 or abs(gimbal_yaw - ROTATION) > 0.2:
                 send_output(
                     "gimbal_control",
-                    pa.array([self.pitch, self.rotation, 20, 20]),
+                    pa.array([PITCH, ROTATION, 20, 20]),
                     dora_event["metadata"],
                 )
-            if self.rgb != self.last_rgb:
+            if RGB != self.rgb:
                 send_output(
                     "led",
-                    pa.array(self.rgb),
+                    pa.array(RGB),
                     dora_event["metadata"],
                 )
-                self.last_rgb = self.rgb
-            if self.brightness != self.last_brightness:
+                self.rgb = RGB
+            if BRIGHTNESS != self.brightness:
                 send_output(
                     "blaster",
-                    pa.array(self.brightness),
+                    pa.array(BRIGHTNESS),
                     dora_event["metadata"],
                 )
-                self.last_brightness = self.brightness
+                self.brightness = BRIGHTNESS
 
         return DoraStatus.CONTINUE
