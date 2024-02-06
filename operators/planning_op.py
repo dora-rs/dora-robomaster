@@ -54,6 +54,7 @@ class Operator:
         send_output,
     ) -> DoraStatus:
         global X, Y, Z, SPEED, PITCH, ROTATION, RGB, BRIGHTNESS, GOAL_OBJECTIVES, GIMBAL_POSITION_GOAL
+        # print("ROTATION", ROTATION, flush=True)
         if dora_event["type"] != "INPUT":
             return DoraStatus.CONTINUE
 
